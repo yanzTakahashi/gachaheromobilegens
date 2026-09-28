@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yanz Takahashi • Hero Gacha</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#090d18;color:#fff}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:18px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:url("watermark.webp") center/cover no-repeat;opacity:.10;filter:saturate(.7);pointer-events:none}
+body::after{content:"";position:fixed;inset:0;background:rgba(5,8,18,.72);pointer-events:none}
+.app{position:relative;z-index:1;width:min(420px,100%);padding:24px 18px 20px;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:rgba(12,17,31,.84);box-shadow:0 18px 50px rgba(0,0,0,.35);text-align:center}
+.logo{font-size:13px;letter-spacing:3px;opacity:.7;margin-bottom:7px}
+h1{margin:0;font-size:29px}
+.sub{margin:8px 0 22px;color:#aeb8cf;font-size:13px}
+.result{min-height:190px;display:flex;align-items:center;justify-content:center;border-radius:20px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);padding:20px;margin-bottom:16px}
+.result.empty{color:#8893aa;font-size:14px}
+.hero{animation:pop .22s ease-out}
+.hero .star{font-size:24px;margin-bottom:8px}
+.hero .name{font-size:30px;font-weight:800}
+.hero .label{margin-top:8px;font-size:12px;color:#aeb8cf}
+button{width:100%;border:0;border-radius:15px;padding:15px;font-size:17px;font-weight:800;color:white;background:linear-gradient(135deg,#7567ff,#4c9cff);cursor:pointer;box-shadow:0 8px 22px rgba(76,156,255,.22)}
+button:active{transform:scale(.98)}
+.count{margin-top:13px;font-size:12px;color:#8792aa}
+.history{margin-top:18px;text-align:left}
+.history-title{font-size:12px;color:#8792aa;margin-bottom:8px}
+.history-list{display:flex;flex-wrap:wrap;gap:7px}
+.history-item{font-size:12px;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.06);color:#dce3f4}
+.watermark-note{margin-top:18px;font-size:10px;color:#68748e}
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="logo">YANZ TAKAHASHI</div>
+  <h1>HERO GACHA</h1>
+  <div class="sub">1x gacha • bebas tanpa batas</div>
+
+  <section id="result" class="result empty">Tekan tombol untuk mendapatkan hero</section>
+  <button id="gacha">🎲 GACHA 1x</button>
+  <div class="count">Total gacha: <b id="count">0</b></div>
+
+  <section class="history">
+    <div class="history-title">RIWAYAT GACHA</div>
+    <div id="history" class="history-list"></div>
+  </section>
+
+  <div class="watermark-note">© Yanz Takahashi • watermark digunakan sebagai latar</div>
+</main>
+
+<script>
+const heroes = ['Aamon', 'Akai', 'Aldous', 'Alice', 'Alpha', 'Alucard', 'Angela', 'Argus', 'Arlott', 'Atlas', 'Aulus', 'Aurora', 'Badang', 'Balmond', 'Bane', 'Barats', 'Baxia', 'Beatrix', 'Belerick', 'Benedetta', 'Brody', 'Bruno', 'Carmilla', 'Cecilion', "Chang'e", 'Chip', 'Chou', 'Cici', 'Claude', 'Clint', 'Cyclops', 'Diggie', 'Dyrroth', 'Edith', 'Esmeralda', 'Estes', 'Eudora', 'Fanny', 'Faramis', 'Floryn', 'Franco', 'Fredrinn', 'Freya', 'Gatotkaca', 'Gloo', 'Gord', 'Granger', 'Grock', 'Guinevere', 'Gusion', 'Hanabi', 'Hanzo', 'Harith', 'Harley', 'Hayabusa', 'Helcurt', 'Hilda', 'Hylos', 'Irithel', 'Ixia', 'Jawhead', 'Johnson', 'Joy', 'Julian', 'Kadita', 'Kagura', 'Kaja', 'Karina', 'Karrie', 'Khaleed', 'Khufra', 'Kimmy', 'Lancelot', 'Lapu-Lapu', 'Layla', 'Leomord', 'Lesley', 'Ling', 'Lolita', 'Lukas', 'Lunox', 'Luo Yi', 'Lylia', 'Marcel', 'Martis', 'Masha', 'Mathilda', 'Melissa', 'Minotaur', 'Minsitthar', 'Miya', 'Moskov', 'Nana', 'Natalia', 'Natan', 'Nolan', 'Novaria', 'Obsidia', 'Odette', 'Paquito', 'Pharsa', 'Phoveus', 'Popol and Kupa', 'Rafaela', 'Roger', 'Ruby', 'Saber', 'Selena', 'Silvanna', 'Sora', 'Sun', 'Suyou', 'Terizla', 'Thamuz', 'Tigreal', 'Uranus', 'Vale', 'Valentina', 'Valir', 'Vexana', 'Wanwan', 'X.Borg', 'Xavier', 'Yi Sun-shin', 'Yin', 'Yu Zhong', 'Yve', 'Zetian', 'Zhask', 'Zhuxin', 'Zilong'];
+let total = 0;
+const history = [];
+
+const result = document.getElementById("result");
+const count = document.getElementById("count");
+const historyBox = document.getElementById("history");
+const button = document.getElementById("gacha");
+
+button.addEventListener("click", () => {
+  const hero = heroes[Math.floor(Math.random() * heroes.length)];
+  total++;
+  history.unshift(hero);
+  if (history.length > 12) history.pop();
+
+  result.classList.remove("empty");
+  result.innerHTML = `<div class="hero">
+    <div class="star">✦</div>
+    <div class="name">${hero}</div>
+    <div class="label">Kamu mendapatkan hero!</div>
+  </div>`;
+
+  count.textContent = total;
+  historyBox.innerHTML = history.map((h,i) => `<span class="history-item">${i+1}. ${h}</span>`).join("");
+});
+</script>
+</body>
+</html>
